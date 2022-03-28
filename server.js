@@ -8,6 +8,8 @@ var db = require("./database.js")
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+//
+var md5 = require('md5')
 
 // Server port
 var HTTP_PORT = 9999 
@@ -67,7 +69,7 @@ app.post("/api/user/", (req, res, next) => {
     var data = {
         name: req.body.name,
         email: req.body.email,
-        password : req.body.password
+        password : req.body.password ? md5(req.body.password) : null
     }
     var sql ='INSERT INTO user (name, email, password) VALUES (?,?,?)'
     var params =[data.name, data.email, data.password]
@@ -83,6 +85,46 @@ app.post("/api/user/", (req, res, next) => {
         })
     });
 })
+
+app.patch("/api/user/:id", (req, res, next) => {
+    var data = {
+        name: req.body.name,
+        email: req.body.email,
+        password : req.body.password ? md5(req.body.password) : null
+    }
+    db.run(
+        `UPDATE user set 
+           name = COALESCE(?,name), 
+           email = COALESCE(?,email), 
+           password = COALESCE(?,password) 
+           WHERE id = ?`,
+        [data.name, data.email, data.password, req.params.id],
+        function (err, result) {
+            if (err){
+                res.status(400).json({"error": res.message})
+                return;
+            }
+            res.json({
+                message: "success",
+                data: data,
+                changes: this.changes
+            })
+    });
+})
+
+app.delete("/api/user/:id", (req, res, next) => {
+    var sql = "delete from user where id = " + req.params.id
+    db.get(sql, (err) => {
+        if (err) {
+          res.status(400).json({"error":err.message});
+        }else{
+            res.json({
+                message: "success2",
+                changes: this.changes
+            })
+        }
+      });
+});
 
 // Default response for any other request
 // Default response for any other request
