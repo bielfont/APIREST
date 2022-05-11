@@ -24,7 +24,7 @@ app.get("/", (req, res, next) => {
 
 // Insert here other API endpoints
 
-app.get("/api/users", (req, res, next) => {
+app.get("/api/users/", (req, res, next) => {
     var sql = "select * from user"
     
     db.all(sql, (err, rows) => {
@@ -41,6 +41,23 @@ app.get("/api/users", (req, res, next) => {
 
 app.get("/api/user/:id", (req, res, next) => {
     var sql = "select * from user where id = " + req.params.id
+    db.get(sql, (err, row) => {
+        if (err) {
+          res.status(400).json({"error":err.message});
+        }else{
+            res.json({
+                "message":"success",
+                "data":row
+            })
+        }
+      });
+});
+
+//GET parametrizado para evitar inyeccion SQL
+
+app.get("/api/user2/:id", (req, res, next) => {
+    var sql = "select * from user where id = ?"
+    var params = [req.params.id]
     db.get(sql, (err, row) => {
         if (err) {
           res.status(400).json({"error":err.message});
@@ -112,8 +129,11 @@ app.patch("/api/user/:id", (req, res, next) => {
     });
 })
 
+//Corregimos DELETE para evitar inyeccion SQL
 app.delete("/api/user/:id", (req, res, next) => {
-    var sql = "delete from user where id = " + req.params.id
+    //var sql = "delete from user where id = " + req.params.id
+    var sql = "delete from user where id = ?"
+    var params = [req.params.id]
     db.get(sql, (err) => {
         if (err) {
           res.status(400).json({"error":err.message});
