@@ -194,19 +194,30 @@ app.get('/api/users', authorization, (req, res, next) => {
 //GET parametrizado para evitar inyeccion SQL
 app.get('/api/user/:id', authorization, (req, res, next) => {
 
-//app.get("/api/user2/:id", (req, res, next) => {
     var sql = "select * from user where id = ?"
     var params = [req.params.id]
+
+    if (req.params.id == req.userId) {  
+    
     db.get(sql, (err, row) => {
         if (err) {
           res.status(400).json({"error":err.message});
         }else{
             res.json({
                 "message":"success",
-                "data":row
+                "id_userdb": params,
+                "id_userauth": req.userId
+            
+                
             })
         }
       });
+    }else{
+        res.json({
+            "message":"No autorizado"
+        })
+            
+    }
 });
 
 app.post('/api/user/', authorization, (req, res, next) => {

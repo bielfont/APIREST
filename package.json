@@ -9,6 +9,7 @@
     "start_http": "nodemon server_http.js",
     "start_token": "nodemon server_token.js",
     "start_cookie": "nodemon server_cookie.js",
+    "start_cookie2": "nodemon server_cookie_roles.js",
     "test": "echo \\\"Error: no test specified\\\" && exit 1"
   },
   "author": "Biel Font",
